@@ -10,27 +10,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
     steps:
       - uses: actions/checkout@v3
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm install --legacy-peer-deps
-
-      - name: Install @cyclonedx/bom
-        run: npm install -g @cyclonedx/bom
-
-      - name: Generate CycloneDX SBOM
-        run: cyclonedx-bom -o sbom.json
-
+          fetch-depth: 0
+          
+      - name: Generate SBOM
+        uses: CycloneDX/gh-node-module-generatebom@v1
+        with:
+          path: ./
+          output: ./bom.json
+          
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
         with:
           name: cyclonedx-sbom
-          path: sbom.json
+          path: bom.json
