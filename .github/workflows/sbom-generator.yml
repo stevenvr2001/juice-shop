@@ -19,7 +19,11 @@ jobs:
         uses: anchore/sbom-action@v0
         with:
           format: cyclonedx-json
-          output-file: sbom.json
+          output-file: raw-sbom.json
+
+      - name: Format JSON
+        run: |
+          jq . raw-sbom.json > sbom.json
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
