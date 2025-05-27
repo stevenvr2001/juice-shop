@@ -16,16 +16,13 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Generate SBOM
-        uses: microsoft/sbom-tool@v1
+        uses: anchore/sbom-action@v0
         with:
-          path: .
-          name: juice-shop
-          version: 1.0.0
-          format: cyclonedx
+          format: cyclonedx-json
           output-file: sbom.json
 
       - name: Upload SBOM artifact
         uses: actions/upload-artifact@v4
         with:
           name: cyclonedx-sbom
-          path: _manifest/spdx_2.2/manifest.json
+          path: sbom.json
