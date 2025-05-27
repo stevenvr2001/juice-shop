@@ -1,27 +1,47 @@
-name: "CodeQL Analysis"
+name: "CodeQL"
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main", "master" ]
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * 1'  # Weekly scan op maandag om 2:00
 
 jobs:
   analyze:
-    name: Analyze Codebase with CodeQL
+    name: Analyze
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'typescript' ]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-      - name: Set up CodeQL
-        uses: github/codeql-action/setup-codeql@v2
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: ${{ matrix.language }}
+        # Voor JavaScript/TypeScript is autobuild meestal voldoende
+        
+    # Soms helpt het om dependencies over te slaan voor een snelle scan
+    # - name: Setup Node.js
+    #   uses: actions/setup-node@v4
+    #   with:
+    #     node-version: '18'
+        
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v3
 
-      - name: Initialize CodeQL
-        uses: github/codeql-action/autobuild@v2
-
-      - name: Run CodeQL analysis
-        uses: github/codeql-action/analyze@v2
-        with:
-          category: "security"
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+      with:
+        category: "/language:${{matrix.language}}"
